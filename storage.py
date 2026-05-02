@@ -1,14 +1,15 @@
+from pathlib import Path
 import json
 import os
 
-FILE = "data.json"
+DATA_PATH = Path(os.getenv("DATA_PATH", "/data.json"))
 
 def load_data():
-    if not os.path.exists(FILE):
+    if not os.path.exists(DATA_PATH):
         return {}
-    with open(FILE, "r") as f:
+    with open(DATA_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
 def save_data(data):
-    with open(FILE, "w") as f:
-        json.dump(data, f, indent=2)
+    DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+    DATA_PATH.write_text(json.dumps(data, indent=4), encoding="utf-8")
