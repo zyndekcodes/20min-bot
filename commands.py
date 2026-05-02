@@ -99,7 +99,7 @@ def handle_command(cmd, args, state, user_id):
 
         changed = True
     
-    elif cmd in ("resetday", "reset"):
+    elif cmd == "resetday":
         removed_score = user.get("today_score", 0)
 
         if removed_score:
@@ -117,6 +117,18 @@ def handle_command(cmd, args, state, user_id):
         )
 
         changed = True
+
+    elif cmd == "reset":
+        user["score"] = 0
+        user["goal"] = None
+        user["last_result"] = None
+        user["last_day"] = today_str
+        user["today_score"] = 0
+        user["streak"] = 0
+
+        changed = True
+
+        response = f"score resetado"
 
     elif cmd == "stats":
         response = f"score: {user.get('score', 0):.2f} | streak: {user.get('streak', 0)}"
@@ -143,7 +155,8 @@ def handle_command(cmd, args, state, user_id):
             "!finish <0-100> -> finaliza o dia e calcula score\n"
             "!stats -> mostra score e streak\n"
             "!leaderboard -> ranking \n"
-            "!resetday -> apaga o objetivo/finish de hoje se fizeste merda\n"
+            "!resetday -> apaga o score de hoje\n"
+            "!reset -> apaga o score total\n"
         )
 
     if changed:
