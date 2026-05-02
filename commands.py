@@ -150,7 +150,7 @@ def handle_command(cmd, args, state, user_id):
     elif cmd == "help":
         response = (
             "commands:\n"
-            "!register <donald trump> -> define o teu nick"
+            "!register <donald trump> -> define o teu nick\n"
             "!goal <texto> <1-5> -> define o objetivo do dia\n"
             "!finish <0-100> -> finaliza o dia e calcula score\n"
             "!stats -> mostra score e streak\n"
