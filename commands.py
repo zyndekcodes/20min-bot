@@ -151,8 +151,8 @@ def handle_command(cmd, args, state, user_id):
         response = (
             "commands:\n"
             "!register <donald trump> -> define o teu nick\n"
-            "!goal <texto> <1-5> -> define o objetivo do dia\n"
-            "!result <0-100> -> finaliza o dia e calcula score\n"
+            "!goal <texto> <1-5> -> define o goal do dia e a sua dificuldade\n"
+            "!result <0-100> -> regista em % o quanto do teu goal conseguiste\n"
             "!stats -> mostra score e streak\n"
             "!leaderboard -> ranking \n"
             "!resetday -> apaga o score de hoje\n"
