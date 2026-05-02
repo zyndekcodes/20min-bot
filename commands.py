@@ -1,4 +1,5 @@
 from datetime import date
+from storage import load_data, save_data
 
 def today():
     return str(date.today())
@@ -11,6 +12,9 @@ def calc_points(difficulty, percent):
 def handle_command(cmd, args, state, user_id):
     user = state.setdefault(user_id, {})
     today_str = today()
+
+    response = None
+    changed = False
 
     # AUTO RESET DIÁRIO (mantém streak)
     if user.get("last_day") != today_str:
@@ -25,7 +29,20 @@ def handle_command(cmd, args, state, user_id):
         user["last_day"] = today_str
         user["last_result"] = None
 
-    if cmd == "goal":
+        changed = True
+
+    elif cmd == "register":
+        name = " ".join(args[:])
+
+        if not name:
+            return "!register <nome aqui boi>"
+        
+        user["name"] = name
+        response = f"novo níck é {name}"
+
+        changed = True
+
+    elif cmd == "goal":
         if len(args) < 2:
             return "uso: !goal <texto> <1-5>"
 
@@ -44,9 +61,11 @@ def handle_command(cmd, args, state, user_id):
             "difficulty": difficulty
         }
 
-        return f"goal: {text} ({difficulty}/5)"
+        response = f"goal: {text} ({difficulty}/5)"
 
-    if cmd == "finish":
+        changed = True
+
+    elif cmd == "finish":
         if len(args) != 1:
             return "uso: !finish <0-100>"
 
@@ -72,13 +91,15 @@ def handle_command(cmd, args, state, user_id):
         user["last_result"] = percent
         user["last_day"] = today_str
 
-        return (
+        response = (
             f"score: {score:.2f} | "
             f"total: {user['score']:.2f} | "
             f"streak: {user.get('streak', 0)}"
         )
+
+        changed = True
     
-    if cmd in ("resetday", "reset"):
+    elif cmd in ("resetday", "reset"):
         removed_score = user.get("today_score", 0)
 
         if removed_score:
@@ -89,16 +110,18 @@ def handle_command(cmd, args, state, user_id):
         user["last_day"] = today_str
         user["today_score"] = 0
 
-        return (
+        response = (
             f"dia resetado | "
             f"removido: {removed_score:.2f} pts | "
             f"total: {user.get('score', 0):.2f}"
         )
 
-    if cmd == "stats":
-        return f"score: {user.get('score', 0):.2f} | streak: {user.get('streak', 0)}"
+        changed = True
 
-    if cmd == "leaderboard":
+    elif cmd == "stats":
+        response = f"score: {user.get('score', 0):.2f} | streak: {user.get('streak', 0)}"
+
+    elif cmd == "leaderboard":
         lb = sorted(
             [(uid, d.get("score", 0), d.get("streak", 0)) for uid, d in state.items()],
             key=lambda x: x[1],
@@ -107,13 +130,15 @@ def handle_command(cmd, args, state, user_id):
 
         msg = "leaderboard:\n"
         for i, (uid, score, streak) in enumerate(lb[:10], 1):
-            msg += f"{i}. {uid} | {score:.1f} pts | streak {streak}\n"
+            nick = state[uid].get("name", uid)
+            msg += f"{i}. {nick} | {score:.1f} pts | streak {streak}\n"
 
-        return msg
+        response = msg
     
-    if cmd == "help":
-        return (
+    elif cmd == "help":
+        response = (
             "commands:\n"
+            "!register <donald trump> -> define o teu nick"
             "!goal <texto> <1-5> -> define o objetivo do dia\n"
             "!finish <0-100> -> finaliza o dia e calcula score\n"
             "!stats -> mostra score e streak\n"
@@ -121,4 +146,7 @@ def handle_command(cmd, args, state, user_id):
             "!resetday -> apaga o objetivo/finish de hoje se fizeste merda\n"
         )
 
-    return None
+    if changed:
+        save_data(state)
+
+    return response
