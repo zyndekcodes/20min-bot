@@ -20,7 +20,7 @@ def handle_command(cmd, args, state, user_id):
     if user.get("last_day") != today_str:
         last = user.get("last_result")
 
-        if last is not None and last >= 70:
+        if last is not None and last >= 50:
             user["streak"] = user.get("streak", 0) + 1
         else:
             user["streak"] = 0
@@ -65,9 +65,9 @@ def handle_command(cmd, args, state, user_id):
 
         changed = True
 
-    elif cmd == "finish":
+    elif cmd == "result":
         if len(args) != 1:
-            return "uso: !finish <0-100>"
+            return "uso: !result <0-100>"
 
         try:
             percent = int(args[0])
@@ -152,7 +152,7 @@ def handle_command(cmd, args, state, user_id):
             "commands:\n"
             "!register <donald trump> -> define o teu nick\n"
             "!goal <texto> <1-5> -> define o objetivo do dia\n"
-            "!finish <0-100> -> finaliza o dia e calcula score\n"
+            "!result <0-100> -> finaliza o dia e calcula score\n"
             "!stats -> mostra score e streak\n"
             "!leaderboard -> ranking \n"
             "!resetday -> apaga o score de hoje\n"
